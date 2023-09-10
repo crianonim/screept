@@ -408,20 +408,36 @@ function applyBinary(
 
 //can throw errors
 export function parseExpression(expr: string): Expression {
-  return expectSingleResult(
-    expectEOF(CONDITIONAL_EXP.parse(lexer.parse(expr)))
-  );
+  return E.match(
+    (e: ParseError) => {
+      throw new Error(e.message);
+    },
+    (v: Expression) => v
+  )(parseExpressionSafely(expr));
 }
 
 //can throw errors
 export function parseStatement(expr: string): Statement {
-  return expectSingleResult(expectEOF(STMT.parse(lexer.parse(expr))));
+  return E.match(
+    (e: ParseError) => {
+      throw new Error(e.message);
+    },
+    (s: Statement) => s
+  )(parseStatementSafely(expr));
 }
 
 export function parseExpressionSafely(
   expr: string
 ): E.Either<ParseError, Expression> {
   const result = expectEOF(CONDITIONAL_EXP.parse(lexer.parse(expr)));
+  if (result.successful) return E.right(expectSingleResult(result));
+  else return E.left(result.error);
+}
+
+export function parseStatementSafely(
+  expr: string
+): E.Either<ParseError, Statement> {
+  const result = expectEOF(STMT.parse(lexer.parse(expr)));
   if (result.successful) return E.right(expectSingleResult(result));
   else return E.left(result.error);
 }
