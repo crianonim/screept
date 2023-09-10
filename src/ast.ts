@@ -66,7 +66,7 @@ type EvaluationError = { type: EvaluationErrorType; ctx: string };
 export function evaluateIdentifier(environment: Environment, id: Identifier) {
   if (id.type == "literal") return id.value;
   else {
-    return getStringValue(evaluateExpression(environment, id.value, true));
+    return getStringValue(evaluateExpression(environment, id.value));
   }
 }
 
@@ -85,84 +85,14 @@ export function evaluateIdentifierSafely(
 
 export function evaluateExpression(
   environment: Environment,
-  expression: Expression,
-  safe = false
+  expression: Expression
 ): Value {
-  try {
-    return match(expression)
-      .returnType<Value>()
-      .with({ type: "literal" }, ({ value }) => value)
-      .with({ type: "binary_op" }, ({ x, y, op }) => {
-        const evX = evaluateExpression(environment, x, safe);
-        const evY = evaluateExpression(environment, y, safe);
-        return evaluateBinaryExpression(evX, op, evY);
-      })
-      .with({ type: "var" }, ({ identifier }) => {
-        const lookup =
-          environment.vars[evaluateIdentifier(environment, identifier)];
-        if (lookup) return lookup;
-        else {
-          if (safe) return n(0);
-          else throw new Error(`Undefined identifier: {${identifier.value}}`);
-        }
-      })
-      .with({ type: "unary_op" }, ({ op, x }) =>
-        match(op)
-          .with("-", () => {
-            const value = evaluateExpression(environment, x);
-            return match(value)
-              .with({ type: "number" }, ({ value }) => n(-value))
-              .otherwise(() => {
-                throw new Error("Unary only with numbers");
-              });
-          })
-          .with("+", () => {
-            const value = evaluateExpression(environment, x);
-            return match(value)
-              .with({ type: "number" }, ({ value }) => n(+value))
-              .otherwise(() => {
-                throw new Error("Unary only with numbers");
-              });
-          })
-          .with("!", () =>
-            isTruthy(evaluateExpression(environment, x)) ? n(0) : n(1)
-          )
-          .exhaustive()
-      )
-
-      .with({ type: "conditon" }, ({ condition, onTrue, onFalse }) => {
-        const evCondition = evaluateExpression(environment, condition);
-        return isTruthy(evCondition)
-          ? evaluateExpression(environment, onTrue)
-          : evaluateExpression(environment, onFalse);
-      })
-
-      .with({ type: "fun_call" }, ({ args, identifier }) => {
-        const fnContent =
-          environment.vars[evaluateIdentifier(environment, identifier)];
-        if (!fnContent || fnContent.type !== "func") {
-          throw new Error(
-            `Undefined function: ${evaluateIdentifier(environment, identifier)}`
-          );
-        }
-        const newEnv = newEnvironment(environment);
-        const argsEvaluated = args.map((a) =>
-          evaluateExpression(environment, a)
-        );
-        argsEvaluated.forEach((el, i) => {
-          newEnv.vars[`_${i}`] = el;
-        });
-        return evaluateExpression(newEnv, fnContent.value);
-      })
-      .with({ type: "parens" }, ({ expression }) =>
-        evaluateExpression(environment, expression)
-      )
-      .exhaustive();
-  } catch (e) {
-    console.log({ e }, "evaluating", expression);
-    if (safe) return t("");
-    else throw e;
-  }
+  return E.match(
+    (e: EvaluationError) => {
+      throw new Error(evaluationErrorToString(e));
+    },
+    (v: Value) => v
+  )(evaluateExpressionSafely(environment, expression));
 }
 export function evaluateExpressionSafelyCurried(environment: Environment) {
   return (expression: Expression) =>
@@ -267,14 +197,10 @@ export function evaluateExpressionSafely(
               : E.left({ type: "undefined", ctx: id })
           )
         );
-        const newEnvironment: E.Either<EvaluationError, Environment> = pipe(
-          args.map((a) => evaluateExpressionSafely(environment, a)),
-          A.sequence(E.Applicative),
-          E.map(A.reduce(environment, (prev: Environment, cur: Value) => prev))
-        );
+
         return pipe(
           E.of(evaluateExpressionSafelyCurried),
-          E.ap(newEnvironment),
+          E.ap(environmentWithArgs(args, environment)),
           E.ap(funcExpression),
           E.flatten
         );
@@ -282,75 +208,6 @@ export function evaluateExpressionSafely(
     )
     .with({ type: "parens" }, ({ expression }) =>
       evaluateExpressionSafely(environment, expression)
-    )
-    .exhaustive();
-}
-
-function evaluateBinaryExpression(x: Value, op: BinaryOp, y: Value): Value {
-  return match(op)
-    .with("+", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          n(xx.value + yy.value)
-        )
-        .otherwise(() => t(getStringValue(x) + getStringValue(y)))
-    )
-    .with("-", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          n(xx.value - yy.value)
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
-    )
-    .with("*", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          n(xx.value * yy.value)
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
-    )
-    .with("/", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          n(xx.value / yy.value)
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
-    )
-    .with("//", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          n(Math.floor(xx.value / yy.value))
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
-    )
-    .with("==", () =>
-      x.type === y.type && getStringValue(x) === getStringValue(y) ? n(1) : n(0)
-    )
-    .with("<", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          x.value < y.value ? n(1) : n(0)
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
-    )
-    .with(">", () =>
-      match([x, y])
-        .with([{ type: "number" }, { type: "number" }], ([xx, yy]) =>
-          x.value > y.value ? n(1) : n(0)
-        )
-        .otherwise(() => {
-          throw new Error("TypeError");
-        })
     )
     .exhaustive();
 }
@@ -432,82 +289,120 @@ export function getStringValue(v: Value): string {
 export function runStatement(
   environment: Environment,
   statement: Statement
-  // safe?: boolean
 ): Environment {
-  try {
-    return match(statement)
-      .with({ type: "print" }, ({ value }) => {
-        const evEx = evaluateExpression(environment, value);
-        console.log("PRINT", getStringValue(evEx));
-        return addOutputToEnvironment(environment, getStringValue(evEx));
-      })
-      .with({ type: "bind" }, ({ value, identifier }) => {
-        const evEx = evaluateExpression(environment, value);
-        const id = evaluateIdentifier(environment, identifier);
-        const nEnvironment = newEnvironment(environment);
-        nEnvironment.vars[id] = evEx;
-        return nEnvironment;
-      })
-      .with({ type: "block" }, ({ statements }) => {
-        return statements.reduce<Environment>((prev, current) => {
-          return runStatement(prev, current);
-        }, environment);
-      })
-      .with(
-        { type: "if" },
-        ({ condition, thenStatement: then, elseStatement }) => {
-          if (isTruthy(evaluateExpression(environment, condition)))
-            return runStatement(environment, then);
-          else if (elseStatement)
-            return runStatement(environment, elseStatement);
-          else return environment;
-        }
+  return E.match(
+    (e: EvaluationError) => {
+      throw new Error(evaluationErrorToString(e));
+    },
+    (v: Environment) => v
+  )(runStatementSafely(environment, statement));
+}
+
+function runStatementSafelyCurried(environment: Environment) {
+  return (statement: Statement): E.Either<EvaluationError, Environment> =>
+    runStatementSafely(environment, statement);
+}
+
+export function runStatementSafely(
+  environment: Environment,
+  statement: Statement
+): E.Either<EvaluationError, Environment> {
+  return match(statement)
+    .with({ type: "print" }, ({ value }) => {
+      return pipe(
+        evaluateExpressionSafely(environment, value),
+        E.map(getStringValue),
+        E.map((x) => addOutputToEnvironment(environment, x))
+      );
+    })
+    .with({ type: "bind" }, ({ value, identifier }) =>
+      pipe(
+        E.of(setVariable(environment)),
+        E.ap(evaluateIdentifierSafely(environment, identifier)),
+        E.ap(evaluateExpressionSafely(environment, value))
       )
-      .with({ type: "proc_def" }, ({ statement, identifier }) => {
-        const nEnvironment = newEnvironment(environment);
-        nEnvironment.procedures[evaluateIdentifier(environment, identifier)] =
-          statement;
-        return nEnvironment;
-      })
+    )
 
-      .with({ type: "proc_run" }, ({ identifier, args }) => {
-        const procContent =
-          environment.procedures[evaluateIdentifier(environment, identifier)];
-        if (!procContent) {
-          throw new Error(
-            `Undefined procedure ${evaluateIdentifier(environment, identifier)}`
+    .with({ type: "block" }, ({ statements }) => {
+      const result = statements.reduce<E.Either<EvaluationError, Environment>>(
+        (prev: E.Either<EvaluationError, Environment>, current: Statement) => {
+          return pipe(
+            prev,
+            E.chain((x: Environment) => runStatementSafely(x, current))
           );
-        }
-        const newEnv = newEnvironment(environment);
-        const argsEvaluated = args.map((a) =>
-          evaluateExpression(environment, a)
-        );
-        argsEvaluated.forEach((el, i) => {
-          newEnv.vars[`_${i}`] = el;
-        });
-        return runStatement(newEnv, procContent);
-      })
-      .with({ type: "random" }, ({ identifier, from, to }) => {
-        const fromEv = evaluateExpression(environment, from);
-        const toEv = evaluateExpression(environment, to);
-        if (fromEv.type !== "number" || toEv.type !== "number") {
-          throw new Error("Random only accepts number ranges.");
-        }
-        const f = fromEv.value;
-        const t = toEv.value;
-        const generated = Math.round(Math.random() * (t - f) + f);
-        const id = evaluateIdentifier(environment, identifier);
-        const nEnvironment = newEnvironment(environment);
-        nEnvironment.vars[id] = n(generated);
-        return nEnvironment;
-      })
+        },
+        E.of(environment)
+      );
+      return result;
+    })
+    .with(
+      { type: "if" },
+      ({
+        condition,
+        thenStatement,
+        elseStatement,
+      }): E.Either<EvaluationError, Environment> =>
+        pipe(
+          evaluateExpressionSafely(environment, condition),
+          E.map(isTruthy),
+          E.chain((x) =>
+            x
+              ? runStatementSafely(environment, thenStatement)
+              : elseStatement
+              ? runStatementSafely(environment, elseStatement)
+              : E.of(environment)
+          )
+        )
+    )
+    .with({ type: "proc_def" }, ({ statement, identifier }) =>
+      pipe(
+        evaluateIdentifierSafely(environment, identifier),
+        E.map((x) => setProcedure(environment)(x)(statement))
+      )
+    )
 
-      .exhaustive();
-  } catch (e) {
-    console.log({ e }, "running", statement);
-    if (false) return environment;
-    else throw e;
-  }
+    .with({ type: "proc_run" }, ({ identifier, args }) =>
+      pipe(
+        E.of(runStatementSafelyCurried),
+        E.ap(environmentWithArgs(args, environment)),
+        E.ap(
+          pipe(
+            evaluateIdentifierSafely(environment, identifier),
+            E.chainW(getProcedure(environment))
+          )
+        ),
+        E.flatten
+      )
+    )
+    .with(
+      { type: "random" },
+      ({ identifier, from, to }): E.Either<EvaluationError, Environment> =>
+        pipe(
+          E.of(setVariable(environment)),
+          E.ap(evaluateIdentifierSafely(environment, identifier)),
+          E.ap(
+            pipe(
+              E.of(
+                (x: Value) => (y: Value) =>
+                  x.type == "number" && y.type == "number"
+                    ? E.of(
+                        n(
+                          Math.round(
+                            Math.random() * (y.value - x.value) + x.value
+                          )
+                        )
+                      )
+                    : E.left(evalError("undefined"))
+              ),
+              E.ap(evaluateExpressionSafely(environment, from)),
+              E.ap(evaluateExpressionSafely(environment, to)),
+              E.flatten
+            )
+          )
+        )
+    )
+
+    .exhaustive();
 }
 
 function newEnvironment(e: Environment): Environment {
@@ -671,4 +566,42 @@ function evalError(type: string, msg?: string): EvaluationError {
 
 export function evaluationErrorToString(e: EvaluationError): string {
   return e.type + " : " + e.ctx;
+}
+
+function setVariable(environment: Environment) {
+  return (id: string) => (v: Value) => {
+    const newVars = Object.assign(environment.vars, { [id]: v });
+    return { ...environment, vars: newVars };
+  };
+}
+function setProcedure(environment: Environment) {
+  return (id: string) => (s: Statement) => {
+    const newProcs = Object.assign(environment.procedures, { [id]: s });
+    return { ...environment, procedures: newProcs };
+  };
+}
+
+function getProcedure(environment: Environment) {
+  return (id: string): E.Either<EvaluationError, Statement> => {
+    const proc = environment.procedures[id];
+    if (!proc) return E.left(evalError("undefined"));
+    else return E.of(proc);
+  };
+}
+
+function environmentWithArgs(
+  args: Expression[],
+  environment: Environment
+): E.Either<EvaluationError, Environment> {
+  return pipe(
+    args.map((a) => evaluateExpressionSafely(environment, a)),
+    A.sequence(E.Applicative),
+    E.map(
+      A.reduceWithIndex(
+        environment,
+        (i: number, prev: Environment, cur: Value) =>
+          setVariable(prev)(`_${i}`)(cur)
+      )
+    )
+  );
 }

@@ -91,11 +91,12 @@ type EvaluationError = {
 };
 export declare function evaluateIdentifier(environment: Environment, id: Identifier): string;
 export declare function evaluateIdentifierSafely(environment: Environment, id: Identifier): E.Either<EvaluationError, string>;
-export declare function evaluateExpression(environment: Environment, expression: Expression, safe?: boolean): Value;
+export declare function evaluateExpression(environment: Environment, expression: Expression): Value;
 export declare function evaluateExpressionSafelyCurried(environment: Environment): (expression: Expression) => E.Either<EvaluationError, Value>;
 export declare function evaluateExpressionSafely(environment: Environment, expression: Expression): E.Either<EvaluationError, Value>;
 export declare function getStringValue(v: Value): string;
 export declare function runStatement(environment: Environment, statement: Statement): Environment;
+export declare function runStatementSafely(environment: Environment, statement: Statement): E.Either<EvaluationError, Environment>;
 export declare function isTruthy(value: Value): Boolean;
 export declare function createOutput(value: string): OutputLine;
 export declare function addOutputToEnvironment(environment: Environment, value: string): Environment;
