@@ -239,7 +239,7 @@ const schemaOutputLine = z.object({
   value: z.string(),
 });
 export type OutputLine = z.infer<typeof schemaOutputLine>;
-const schemaEnvironment = z.object({
+export const schemaEnvironment = z.object({
   vars: z.record(schemaValue),
   procedures: z.record(schemaStatement),
   output: z.array(schemaOutputLine),
