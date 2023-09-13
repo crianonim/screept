@@ -9,13 +9,11 @@ const schemaValueNumber = z.object({
   type: z.literal("number"),
   value: z.number().positive(),
 });
-type ValueNumber = z.infer<typeof schemaValueNumber>;
 
 const schemaValueText = z.object({
   type: z.literal("text"),
   value: z.string(),
 });
-type ValueText = z.infer<typeof schemaValueText>;
 
 //todo
 const schemaValueFuncBase = z.object({
@@ -25,7 +23,7 @@ type ValueFunc = z.infer<typeof schemaValueFuncBase> & { value: Expression };
 const schemaValueFunc: z.ZodType<ValueFunc> = schemaValueFuncBase.extend({
   value: z.lazy(() => schemaExpression),
 });
-const schemaValue = z.union([
+export const schemaValue = z.union([
   schemaValueNumber,
   schemaValueText,
   schemaValueFunc,
@@ -61,8 +59,6 @@ const schemaExpressionLiteral = z.object({
   type: z.literal("literal"),
   value: schemaValue,
 });
-
-type ExpressionLiteral = z.infer<typeof schemaExpressionLiteral>;
 
 const schemaUnaryOp = z.union([z.literal("+"), z.literal("-"), z.literal("!")]);
 export type UnaryOp = z.infer<typeof schemaUnaryOp>;
@@ -168,58 +164,88 @@ export const schemaExpression = z.union([
 
 export type Expression = z.infer<typeof schemaExpression>;
 
-// export type Value =
-//   | { type: "number"; value: number }
-//   | { type: "text"; value: string }
-//   | { type: "func"; value: Expression };
+const schemaStatementBind = z.object({
+  type: z.literal("bind"),
+  identifier: schemaIdentifier,
+  value: schemaExpression,
+});
 
-// export type Expression =
-//   | { type: "literal"; value: Value }
-//   | { type: "unary_op"; op: UnaryOp; x: Expression }
-//   | { type: "binary_op"; x: Expression; op: BinaryOp; y: Expression }
-//   | { type: "var"; identifier: Identifier }
-//   | {
-//       type: "conditon";
-//       condition: Expression;
-//       onTrue: Expression;
-//       onFalse: Expression;
-//     }
-//   | { type: "fun_call"; identifier: Identifier; args: Expression[] }
-//   | { type: "parens"; expression: Expression };
+const schemaStatementPrint = z.object({
+  type: z.literal("print"),
+  value: schemaExpression,
+});
 
-// export type BinaryOp = "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
-
-// export type UnaryOp = "+" | "-" | "!";
-
-// export type Identifier =
-//   | { type: "literal"; value: string }
-//   | { type: "computed"; value: Expression };
-
-export type Environment = {
-  vars: Record<string, Value>;
-  procedures: Record<string, Statement>;
-  output: OutputLine[];
+const schemaStatementProcDefBase = z.object({
+  type: z.literal("proc_def"),
+  identifier: schemaIdentifier,
+});
+type StatementProcDef = z.infer<typeof schemaStatementProcDefBase> & {
+  statement: Statement;
 };
-export type OutputLine = { ts: number; value: string };
+const schemaStatementProcDef: z.ZodType<StatementProcDef> =
+  schemaStatementProcDefBase.extend({
+    statement: z.lazy(() => schemaStatement),
+  });
 
-export type Statement =
-  | { type: "bind"; identifier: Identifier; value: Expression }
-  | { type: "block"; statements: Statement[] }
-  | { type: "print"; value: Expression }
-  | {
-      type: "if";
-      condition: Expression;
-      thenStatement: Statement;
-      elseStatement?: Statement;
-    }
-  | { type: "proc_def"; identifier: Identifier; statement: Statement }
-  | { type: "proc_run"; identifier: Identifier; args: Expression[] }
-  | {
-      type: "random";
-      identifier: Identifier;
-      from: Expression;
-      to: Expression;
-    };
+const schemaStatementBlockBase = z.object({
+  type: z.literal("block"),
+});
+type StatementBlock = z.infer<typeof schemaStatementBlockBase> & {
+  statements: Statement[];
+};
+const schemaStatementBlock: z.ZodType<StatementBlock> =
+  schemaStatementBlockBase.extend({
+    statements: z.array(z.lazy(() => schemaStatement)),
+  });
+
+const schemaStatementProcRun = z.object({
+  type: z.literal("proc_run"),
+  identifier: schemaIdentifier,
+  args: z.array(schemaExpression),
+});
+
+const schemaStatementRandom = z.object({
+  type: z.literal("random"),
+  identifier: schemaIdentifier,
+  from: schemaExpression,
+  to: schemaExpression,
+});
+
+const schemaStatementIfBase = z.object({
+  type: z.literal("if"),
+  condition: schemaExpression,
+});
+type StatementIf = z.infer<typeof schemaStatementIfBase> & {
+  thenStatement: Statement;
+  elseStatement?: Statement;
+};
+const schemaStatementIf: z.ZodType<StatementIf> = schemaStatementIfBase.extend({
+  thenStatement: z.lazy(() => schemaStatement),
+  elseStatement: z.lazy(() => schemaStatement).optional(),
+});
+export const schemaStatement = z.union([
+  schemaStatementBind,
+  schemaStatementPrint,
+  schemaStatementProcDef,
+  schemaStatementProcRun,
+  schemaStatementRandom,
+  schemaStatementBlock,
+  schemaStatementIf,
+]);
+export type Statement = z.infer<typeof schemaStatement>;
+
+const schemaOutputLine = z.object({
+  ts: z.number().positive(),
+  value: z.string(),
+});
+export type OutputLine = z.infer<typeof schemaOutputLine>;
+const schemaEnvironment = z.object({
+  vars: z.record(schemaValue),
+  procedures: z.record(schemaStatement),
+  output: z.array(schemaOutputLine),
+});
+
+export type Environment = z.infer<typeof schemaEnvironment>;
 
 type EvaluationErrorType =
   | "type error - number expected"

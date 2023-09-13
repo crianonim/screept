@@ -16,15 +16,12 @@
   "author": "Jan Skowronski",
   "license": "ISC",
   "dependencies": {
-    "@anatine/zod-mock": "^3.13.2",
-    "fast-check": "^3.13.0",
     "fp-ts": "^2.16.1",
     "nodemon": "^3.0.1",
     "ts-pattern": "^5.0.5",
     "typescript": "^5.2.2",
     "typescript-parsec": "^0.3.4",
-    "zod": "^3.22.2",
-    "zod-fast-check": "^0.10.0"
+    "zod": "^3.22.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",

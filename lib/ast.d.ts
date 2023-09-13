@@ -10,7 +10,7 @@ declare const schemaValueFuncBase: z.ZodObject<{
 type ValueFunc = z.infer<typeof schemaValueFuncBase> & {
     value: Expression;
 };
-declare const schemaValue: z.ZodUnion<[z.ZodObject<{
+export declare const schemaValue: z.ZodUnion<[z.ZodObject<{
     type: z.ZodLiteral<"number">;
     value: z.ZodNumber;
 }, "strip", z.ZodTypeAny, {
@@ -174,44 +174,2159 @@ export declare const schemaExpression: z.ZodUnion<[z.ZodObject<{
     });
 }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
 export type Expression = z.infer<typeof schemaExpression>;
-export type Environment = {
-    vars: Record<string, Value>;
-    procedures: Record<string, Statement>;
-    output: OutputLine[];
+declare const schemaStatementProcDefBase: z.ZodObject<{
+    type: z.ZodLiteral<"proc_def">;
+    identifier: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: string;
+    }, {
+        type: "literal";
+        value: string;
+    }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "proc_def";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+}, {
+    type: "proc_def";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+}>;
+type StatementProcDef = z.infer<typeof schemaStatementProcDefBase> & {
+    statement: Statement;
 };
-export type OutputLine = {
-    ts: number;
-    value: string;
-};
-export type Statement = {
-    type: "bind";
-    identifier: Identifier;
-    value: Expression;
-} | {
+declare const schemaStatementBlockBase: z.ZodObject<{
+    type: z.ZodLiteral<"block">;
+}, "strip", z.ZodTypeAny, {
     type: "block";
+}, {
+    type: "block";
+}>;
+type StatementBlock = z.infer<typeof schemaStatementBlockBase> & {
     statements: Statement[];
-} | {
-    type: "print";
-    value: Expression;
-} | {
+};
+declare const schemaStatementIfBase: z.ZodObject<{
+    type: z.ZodLiteral<"if">;
+    condition: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+}, "strip", z.ZodTypeAny, {
     type: "if";
-    condition: Expression;
+    condition: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}, {
+    type: "if";
+    condition: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}>;
+type StatementIf = z.infer<typeof schemaStatementIfBase> & {
     thenStatement: Statement;
     elseStatement?: Statement;
-} | {
-    type: "proc_def";
-    identifier: Identifier;
-    statement: Statement;
-} | {
-    type: "proc_run";
-    identifier: Identifier;
-    args: Expression[];
-} | {
-    type: "random";
-    identifier: Identifier;
-    from: Expression;
-    to: Expression;
 };
+export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
+    type: z.ZodLiteral<"bind">;
+    identifier: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: string;
+    }, {
+        type: "literal";
+        value: string;
+    }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+    value: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "bind";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+}, {
+    type: "bind";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"print">;
+    value: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "print";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}, {
+    type: "print";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}>, z.ZodType<StatementProcDef, z.ZodTypeDef, StatementProcDef>, z.ZodObject<{
+    type: z.ZodLiteral<"proc_run">;
+    identifier: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: string;
+    }, {
+        type: "literal";
+        value: string;
+    }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+    args: z.ZodArray<z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>, "many">;
+}, "strip", z.ZodTypeAny, {
+    type: "proc_run";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+    args: ({
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+}, {
+    type: "proc_run";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+    args: ({
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"random">;
+    identifier: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: string;
+    }, {
+        type: "literal";
+        value: string;
+    }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+    from: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+    to: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "random";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+    from: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+    to: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}, {
+    type: "random";
+    identifier: {
+        type: "literal";
+        value: string;
+    } | ({
+        type: "computed";
+    } & {
+        value: Expression;
+    });
+    from: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+    to: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}>, z.ZodType<StatementBlock, z.ZodTypeDef, StatementBlock>, z.ZodType<StatementIf, z.ZodTypeDef, StatementIf>]>;
+export type Statement = z.infer<typeof schemaStatement>;
+declare const schemaOutputLine: z.ZodObject<{
+    ts: z.ZodNumber;
+    value: z.ZodString;
+}, "strip", z.ZodTypeAny, {
+    value: string;
+    ts: number;
+}, {
+    value: string;
+    ts: number;
+}>;
+export type OutputLine = z.infer<typeof schemaOutputLine>;
+declare const schemaEnvironment: z.ZodObject<{
+    vars: z.ZodRecord<z.ZodString, z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"number">;
+        value: z.ZodNumber;
+    }, "strip", z.ZodTypeAny, {
+        type: "number";
+        value: number;
+    }, {
+        type: "number";
+        value: number;
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"text">;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        type: "text";
+        value: string;
+    }, {
+        type: "text";
+        value: string;
+    }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>>;
+    procedures: z.ZodRecord<z.ZodString, z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"bind">;
+        identifier: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: string;
+        }, {
+            type: "literal";
+            value: string;
+        }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "bind";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "bind";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"print">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "print";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    }, {
+        type: "print";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    }>, z.ZodType<StatementProcDef, z.ZodTypeDef, StatementProcDef>, z.ZodObject<{
+        type: z.ZodLiteral<"proc_run">;
+        identifier: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: string;
+        }, {
+            type: "literal";
+            value: string;
+        }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+        args: z.ZodArray<z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>, "many">;
+    }, "strip", z.ZodTypeAny, {
+        type: "proc_run";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        args: ({
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+    }, {
+        type: "proc_run";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        args: ({
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"random">;
+        identifier: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: string;
+        }, {
+            type: "literal";
+            value: string;
+        }>, z.ZodType<IndentifierComputed, z.ZodTypeDef, IndentifierComputed>]>;
+        from: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+        to: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "random";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        from: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        to: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    }, {
+        type: "random";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        from: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        to: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    }>, z.ZodType<StatementBlock, z.ZodTypeDef, StatementBlock>, z.ZodType<StatementIf, z.ZodTypeDef, StatementIf>]>>;
+    output: z.ZodArray<z.ZodObject<{
+        ts: z.ZodNumber;
+        value: z.ZodString;
+    }, "strip", z.ZodTypeAny, {
+        value: string;
+        ts: number;
+    }, {
+        value: string;
+        ts: number;
+    }>, "many">;
+}, "strip", z.ZodTypeAny, {
+    vars: Record<string, {
+        type: "number";
+        value: number;
+    } | {
+        type: "text";
+        value: string;
+    } | ValueFunc>;
+    procedures: Record<string, {
+        type: "bind";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+    } | {
+        type: "print";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    } | StatementProcDef | {
+        type: "proc_run";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        args: ({
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+    } | {
+        type: "random";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        from: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        to: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    } | StatementBlock | StatementIf>;
+    output: {
+        value: string;
+        ts: number;
+    }[];
+}, {
+    vars: Record<string, {
+        type: "number";
+        value: number;
+    } | {
+        type: "text";
+        value: string;
+    } | ValueFunc>;
+    procedures: Record<string, {
+        type: "bind";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+    } | {
+        type: "print";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    } | StatementProcDef | {
+        type: "proc_run";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        args: ({
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ExpressionUnary | ExpressionBinary | ExpressionVar | ExpressionCondition | ExpressionFunCall | ExpressionParens)[];
+    } | {
+        type: "random";
+        identifier: {
+            type: "literal";
+            value: string;
+        } | ({
+            type: "computed";
+        } & {
+            value: Expression;
+        });
+        from: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+        to: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    } | StatementBlock | StatementIf>;
+    output: {
+        value: string;
+        ts: number;
+    }[];
+}>;
+export type Environment = z.infer<typeof schemaEnvironment>;
 type EvaluationErrorType = "type error - number expected" | "undefined" | "other evaluation error";
 type EvaluationError = {
     type: EvaluationErrorType;
