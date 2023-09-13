@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const schemaValueNumber = z.object({
   type: z.literal("number"),
-  value: z.number().positive(),
+  value: z.number().nonnegative(),
 });
 
 const schemaValueText = z.object({
