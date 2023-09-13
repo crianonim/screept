@@ -1102,7 +1102,7 @@ declare const schemaOutputLine: z.ZodObject<{
     ts: number;
 }>;
 export type OutputLine = z.infer<typeof schemaOutputLine>;
-declare const schemaEnvironment: z.ZodObject<{
+export declare const schemaEnvironment: z.ZodObject<{
     vars: z.ZodRecord<z.ZodString, z.ZodUnion<[z.ZodObject<{
         type: z.ZodLiteral<"number">;
         value: z.ZodNumber;
