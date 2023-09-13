@@ -3,32 +3,197 @@ import { match } from "ts-pattern";
 import { pipe, flow } from "fp-ts/function";
 import * as E from "fp-ts/Either";
 import * as A from "fp-ts/Array";
-export type Value =
-  | { type: "number"; value: number }
-  | { type: "text"; value: string }
-  | { type: "func"; value: Expression };
+import { z } from "zod";
 
-export type Expression =
-  | { type: "literal"; value: Value }
-  | { type: "unary_op"; op: UnaryOp; x: Expression }
-  | { type: "binary_op"; x: Expression; op: BinaryOp; y: Expression }
-  | { type: "var"; identifier: Identifier }
-  | {
-      type: "conditon";
-      condition: Expression;
-      onTrue: Expression;
-      onFalse: Expression;
-    }
-  | { type: "fun_call"; identifier: Identifier; args: Expression[] }
-  | { type: "parens"; expression: Expression };
+const schemaValueNumber = z.object({
+  type: z.literal("number"),
+  value: z.number().positive(),
+});
+type ValueNumber = z.infer<typeof schemaValueNumber>;
 
-export type BinaryOp = "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+const schemaValueText = z.object({
+  type: z.literal("text"),
+  value: z.string(),
+});
+type ValueText = z.infer<typeof schemaValueText>;
 
-export type UnaryOp = "+" | "-" | "!";
+//todo
+const schemaValueFuncBase = z.object({
+  type: z.literal("func"),
+});
+type ValueFunc = z.infer<typeof schemaValueFuncBase> & { value: Expression };
+const schemaValueFunc: z.ZodType<ValueFunc> = schemaValueFuncBase.extend({
+  value: z.lazy(() => schemaExpression),
+});
+const schemaValue = z.union([
+  schemaValueNumber,
+  schemaValueText,
+  schemaValueFunc,
+]);
 
-export type Identifier =
-  | { type: "literal"; value: string }
-  | { type: "computed"; value: Expression };
+export type Value = z.infer<typeof schemaValue>;
+
+// Identifier
+const schemaIndentifierLiteral = z.object({
+  type: z.literal("literal"),
+  value: z.string(),
+});
+const schemaIndentifierComputedBase = z.object({
+  type: z.literal("computed"),
+});
+type IndentifierComputed = z.infer<typeof schemaIndentifierComputedBase> & {
+  value: Expression;
+};
+const schemaIndentifierComputed: z.ZodType<IndentifierComputed> =
+  schemaIndentifierComputedBase.extend({
+    value: z.lazy(() => schemaExpression),
+  });
+
+export const schemaIdentifier = z.union([
+  schemaIndentifierLiteral,
+  schemaIndentifierComputed,
+]);
+
+export type Identifier = z.infer<typeof schemaIdentifier>;
+
+// Expression Literal
+const schemaExpressionLiteral = z.object({
+  type: z.literal("literal"),
+  value: schemaValue,
+});
+
+type ExpressionLiteral = z.infer<typeof schemaExpressionLiteral>;
+
+const schemaUnaryOp = z.union([z.literal("+"), z.literal("-"), z.literal("!")]);
+export type UnaryOp = z.infer<typeof schemaUnaryOp>;
+
+type ExpressionUnary = z.infer<typeof schemaExpressionUnaryBase> & {
+  x: Expression;
+};
+const schemaExpressionUnaryBase = z.object({
+  type: z.literal("unary_op"),
+  op: schemaUnaryOp,
+});
+
+const schemaExpressionUnary: z.ZodType<ExpressionUnary> =
+  schemaExpressionUnaryBase.extend({
+    x: z.lazy(() => schemaExpression),
+  });
+
+const schemaBinaryOp = z.union([
+  z.literal("+"),
+  z.literal("-"),
+  z.literal("*"),
+  z.literal("/"),
+  z.literal("//"),
+  z.literal("=="),
+  z.literal("<"),
+  z.literal(">"),
+]);
+export type BinaryOp = z.infer<typeof schemaBinaryOp>;
+
+const schemaExpressionBinaryBase = z.object({
+  type: z.literal("binary_op"),
+  op: schemaBinaryOp,
+});
+
+type ExpressionBinary = z.infer<typeof schemaExpressionBinaryBase> & {
+  x: Expression;
+  y: Expression;
+};
+const schemaExpressionBinary: z.ZodType<ExpressionBinary> =
+  schemaExpressionBinaryBase.extend({
+    x: z.lazy(() => schemaExpression),
+    y: z.lazy(() => schemaExpression),
+  });
+
+const schemaExpressionVarBase = z.object({ type: z.literal("var") });
+type ExpressionVar = z.infer<typeof schemaExpressionVarBase> & {
+  identifier: Identifier;
+};
+const schemaExpressionVar: z.ZodType<ExpressionVar> =
+  schemaExpressionVarBase.extend({
+    identifier: z.lazy(() => schemaIdentifier),
+  });
+
+const schemaExpressionConditionalBase = z.object({
+  type: z.literal("conditon"),
+});
+type ExpressionCondition = z.infer<typeof schemaExpressionConditionalBase> & {
+  condition: Expression;
+  onTrue: Expression;
+  onFalse: Expression;
+};
+const schemaExpressionConditional: z.ZodType<ExpressionCondition> =
+  schemaExpressionConditionalBase.extend({
+    condition: z.lazy(() => schemaExpression),
+    onTrue: z.lazy(() => schemaExpression),
+    onFalse: z.lazy(() => schemaExpression),
+  });
+
+const schemaExpressionFunCallBase = z.object({
+  type: z.literal("fun_call"),
+});
+type ExpressionFunCall = z.infer<typeof schemaExpressionFunCallBase> & {
+  identifier: Identifier;
+  args: Expression[];
+};
+const schemaExpressionFunCall: z.ZodType<ExpressionFunCall> =
+  schemaExpressionFunCallBase.extend({
+    identifier: z.lazy(() => schemaIdentifier),
+    args: z.array(z.lazy(() => schemaExpression)),
+  });
+
+const schemaExpressionParensBase = z.object({
+  type: z.literal("parens"),
+});
+
+type ExpressionParens = z.infer<typeof schemaExpressionParensBase> & {
+  expression: Expression;
+};
+
+const schemaExpressionParens: z.ZodType<ExpressionParens> =
+  schemaExpressionParensBase.extend({
+    expression: z.lazy(() => schemaExpression),
+  });
+export const schemaExpression = z.union([
+  schemaExpressionLiteral,
+  schemaExpressionUnary,
+  schemaExpressionBinary,
+  schemaExpressionVar,
+  schemaExpressionConditional,
+  schemaExpressionFunCall,
+  schemaExpressionParens,
+]);
+
+export type Expression = z.infer<typeof schemaExpression>;
+
+// export type Value =
+//   | { type: "number"; value: number }
+//   | { type: "text"; value: string }
+//   | { type: "func"; value: Expression };
+
+// export type Expression =
+//   | { type: "literal"; value: Value }
+//   | { type: "unary_op"; op: UnaryOp; x: Expression }
+//   | { type: "binary_op"; x: Expression; op: BinaryOp; y: Expression }
+//   | { type: "var"; identifier: Identifier }
+//   | {
+//       type: "conditon";
+//       condition: Expression;
+//       onTrue: Expression;
+//       onFalse: Expression;
+//     }
+//   | { type: "fun_call"; identifier: Identifier; args: Expression[] }
+//   | { type: "parens"; expression: Expression };
+
+// export type BinaryOp = "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+
+// export type UnaryOp = "+" | "-" | "!";
+
+// export type Identifier =
+//   | { type: "literal"; value: string }
+//   | { type: "computed"; value: Expression };
 
 export type Environment = {
   vars: Record<string, Value>;
