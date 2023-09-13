@@ -570,13 +570,13 @@ export function evaluationErrorToString(e: EvaluationError): string {
 
 function setVariable(environment: Environment) {
   return (id: string) => (v: Value) => {
-    const newVars = Object.assign(environment.vars, { [id]: v });
+    const newVars = { ...Object.assign(environment.vars, { [id]: v }) };
     return { ...environment, vars: newVars };
   };
 }
 function setProcedure(environment: Environment) {
   return (id: string) => (s: Statement) => {
-    const newProcs = Object.assign(environment.procedures, { [id]: s });
+    const newProcs = { ...Object.assign(environment.procedures, { [id]: s }) };
     return { ...environment, procedures: newProcs };
   };
 }
