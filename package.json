@@ -1,15 +1,19 @@
 {
   "name": "@crianonim/screept",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
+    "build": "tsc",
     "dev": "tsc --watch",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "prepublish": "tsc"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "programming language"
+  ],
+  "author": "Jan Skowronski",
   "license": "ISC",
   "dependencies": {
     "fp-ts": "^2.16.1",
