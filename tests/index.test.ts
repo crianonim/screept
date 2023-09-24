@@ -60,6 +60,20 @@ describe("run statement ", () => {
       ({ output }) => expect(output[0].value).toEqual("Jan")
     );
   });
+  test("emit", () => {
+    const mockFunc = jest.fn();
+    testRight(
+      runStatementSafely(
+        env,
+        {
+          type: "emit",
+          value: l(tJan),
+        },
+        mockFunc
+      ),
+      () => expect(mockFunc).toBeCalledWith("Jan")
+    );
+  });
   test("empty block", () => {
     testRight(
       runStatementSafely(env, {

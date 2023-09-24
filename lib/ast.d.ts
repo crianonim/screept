@@ -677,6 +677,148 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         expression: Expression;
     });
+}>, z.ZodObject<{
+    type: z.ZodLiteral<"emit">;
+    value: z.ZodUnion<[z.ZodObject<{
+        type: z.ZodLiteral<"literal">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"number">;
+            value: z.ZodNumber;
+        }, "strip", z.ZodTypeAny, {
+            type: "number";
+            value: number;
+        }, {
+            type: "number";
+            value: number;
+        }>, z.ZodObject<{
+            type: z.ZodLiteral<"text">;
+            value: z.ZodString;
+        }, "strip", z.ZodTypeAny, {
+            type: "text";
+            value: string;
+        }, {
+            type: "text";
+            value: string;
+        }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }, {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+}, "strip", z.ZodTypeAny, {
+    type: "emit";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
+}, {
+    type: "emit";
+    value: {
+        type: "literal";
+        value: {
+            type: "number";
+            value: number;
+        } | {
+            type: "text";
+            value: string;
+        } | ({
+            type: "func";
+        } & {
+            value: Expression;
+        });
+    } | ({
+        type: "unary_op";
+        op: "+" | "-" | "!";
+    } & {
+        x: Expression;
+    }) | ({
+        type: "binary_op";
+        op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+    } & {
+        x: Expression;
+        y: Expression;
+    }) | ({
+        type: "var";
+    } & {
+        identifier: Identifier;
+    }) | ({
+        type: "conditon";
+    } & {
+        condition: Expression;
+        onTrue: Expression;
+        onFalse: Expression;
+    }) | ({
+        type: "fun_call";
+    } & {
+        identifier: Identifier;
+        args: Expression[];
+    }) | ({
+        type: "parens";
+    } & {
+        expression: Expression;
+    });
 }>, z.ZodType<StatementProcDef, z.ZodTypeDef, StatementProcDef>, z.ZodObject<{
     type: z.ZodLiteral<"proc_run">;
     identifier: z.ZodUnion<[z.ZodObject<{
@@ -1432,6 +1574,148 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             expression: Expression;
         });
+    }>, z.ZodObject<{
+        type: z.ZodLiteral<"emit">;
+        value: z.ZodUnion<[z.ZodObject<{
+            type: z.ZodLiteral<"literal">;
+            value: z.ZodUnion<[z.ZodObject<{
+                type: z.ZodLiteral<"number">;
+                value: z.ZodNumber;
+            }, "strip", z.ZodTypeAny, {
+                type: "number";
+                value: number;
+            }, {
+                type: "number";
+                value: number;
+            }>, z.ZodObject<{
+                type: z.ZodLiteral<"text">;
+                value: z.ZodString;
+            }, "strip", z.ZodTypeAny, {
+                type: "text";
+                value: string;
+            }, {
+                type: "text";
+                value: string;
+            }>, z.ZodType<ValueFunc, z.ZodTypeDef, ValueFunc>]>;
+        }, "strip", z.ZodTypeAny, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }, {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        }>, z.ZodType<ExpressionUnary, z.ZodTypeDef, ExpressionUnary>, z.ZodType<ExpressionBinary, z.ZodTypeDef, ExpressionBinary>, z.ZodType<ExpressionVar, z.ZodTypeDef, ExpressionVar>, z.ZodType<ExpressionCondition, z.ZodTypeDef, ExpressionCondition>, z.ZodType<ExpressionFunCall, z.ZodTypeDef, ExpressionFunCall>, z.ZodType<ExpressionParens, z.ZodTypeDef, ExpressionParens>]>;
+    }, "strip", z.ZodTypeAny, {
+        type: "emit";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
+    }, {
+        type: "emit";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
     }>, z.ZodType<StatementProcDef, z.ZodTypeDef, StatementProcDef>, z.ZodObject<{
         type: z.ZodLiteral<"proc_run">;
         identifier: z.ZodUnion<[z.ZodObject<{
@@ -1963,6 +2247,52 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             expression: Expression;
         });
+    } | {
+        type: "emit";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
     } | StatementProcDef | {
         type: "proc_run";
         identifier: {
@@ -2198,6 +2528,52 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             expression: Expression;
         });
+    } | {
+        type: "emit";
+        value: {
+            type: "literal";
+            value: {
+                type: "number";
+                value: number;
+            } | {
+                type: "text";
+                value: string;
+            } | ({
+                type: "func";
+            } & {
+                value: Expression;
+            });
+        } | ({
+            type: "unary_op";
+            op: "+" | "-" | "!";
+        } & {
+            x: Expression;
+        }) | ({
+            type: "binary_op";
+            op: "+" | "-" | "*" | "/" | "//" | "==" | "<" | ">";
+        } & {
+            x: Expression;
+            y: Expression;
+        }) | ({
+            type: "var";
+        } & {
+            identifier: Identifier;
+        }) | ({
+            type: "conditon";
+        } & {
+            condition: Expression;
+            onTrue: Expression;
+            onFalse: Expression;
+        }) | ({
+            type: "fun_call";
+        } & {
+            identifier: Identifier;
+            args: Expression[];
+        }) | ({
+            type: "parens";
+        } & {
+            expression: Expression;
+        });
     } | StatementProcDef | {
         type: "proc_run";
         identifier: {
@@ -2344,8 +2720,8 @@ export declare function evaluateExpressionSafelyCurried(environment: Environment
 } | ValueFunc>;
 export declare function evaluateExpressionSafely(environment: Environment, expression: Expression): E.Either<EvaluationError, Value>;
 export declare function getStringValue(v: Value): string;
-export declare function runStatement(environment: Environment, statement: Statement): Environment;
-export declare function runStatementSafely(environment: Environment, statement: Statement): E.Either<EvaluationError, Environment>;
+export declare function runStatement(environment: Environment, statement: Statement, emitHandler?: (x: string) => void): Environment;
+export declare function runStatementSafely(environment: Environment, statement: Statement, emitHandler?: (x: string) => void): E.Either<EvaluationError, Environment>;
 export declare function isTruthy(value: Value): Boolean;
 export declare function createOutput(value: string): OutputLine;
 export declare function addOutputToEnvironment(environment: Environment, value: string): Environment;

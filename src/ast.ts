@@ -175,6 +175,11 @@ const schemaStatementPrint = z.object({
   value: schemaExpression,
 });
 
+const schemaStatementEmit = z.object({
+  type: z.literal("emit"),
+  value: schemaExpression,
+});
+
 const schemaStatementProcDefBase = z.object({
   type: z.literal("proc_def"),
   identifier: schemaIdentifier,
@@ -223,9 +228,11 @@ const schemaStatementIf: z.ZodType<StatementIf> = schemaStatementIfBase.extend({
   thenStatement: z.lazy(() => schemaStatement),
   elseStatement: z.lazy(() => schemaStatement).optional(),
 });
+
 export const schemaStatement = z.union([
   schemaStatementBind,
   schemaStatementPrint,
+  schemaStatementEmit,
   schemaStatementProcDef,
   schemaStatementProcRun,
   schemaStatementRandom,
@@ -479,24 +486,29 @@ export function getStringValue(v: Value): string {
 
 export function runStatement(
   environment: Environment,
-  statement: Statement
+  statement: Statement,
+  emitHandler?: (x: string) => void
 ): Environment {
   return E.match(
     (e: EvaluationError) => {
       throw new Error(evaluationErrorToString(e));
     },
     (v: Environment) => v
-  )(runStatementSafely(environment, statement));
+  )(runStatementSafely(environment, statement, emitHandler));
 }
 
 function runStatementSafelyCurried(environment: Environment) {
-  return (statement: Statement): E.Either<EvaluationError, Environment> =>
-    runStatementSafely(environment, statement);
+  return (statement: Statement) =>
+    (
+      emitHandler?: (x: string) => void
+    ): E.Either<EvaluationError, Environment> =>
+      runStatementSafely(environment, statement, emitHandler);
 }
 
 export function runStatementSafely(
   environment: Environment,
-  statement: Statement
+  statement: Statement,
+  emitHandler?: (x: string) => void
 ): E.Either<EvaluationError, Environment> {
   return match(statement)
     .with({ type: "print" }, ({ value }) => {
@@ -505,6 +517,19 @@ export function runStatementSafely(
         E.map(getStringValue),
         E.map((x) => addOutputToEnvironment(environment, x))
       );
+    })
+    .with({ type: "emit" }, ({ value }) => {
+      const msgResult = pipe(
+        evaluateExpressionSafely(environment, value),
+        E.map(getStringValue)
+      );
+      E.fold(
+        () => {},
+        (msg: string) => {
+          if (emitHandler) emitHandler(msg);
+        }
+      )(msgResult);
+      return E.right(environment);
     })
     .with({ type: "bind" }, ({ value, identifier }) =>
       pipe(
@@ -562,6 +587,7 @@ export function runStatementSafely(
             E.chainW(getProcedure(environment))
           )
         ),
+        E.ap(E.of(emitHandler)),
         E.flatten
       )
     )
@@ -681,6 +707,7 @@ export function stringifyStatement(e: Statement): string {
       { type: "print" },
       ({ value }) => `PRINT ${stringifyExpression(value)}`
     )
+    .with({ type: "emit" }, ({ value }) => `EMIT ${stringifyExpression(value)}`)
     .with(
       { type: "bind" },
       ({ value, identifier }) =>

@@ -50,6 +50,7 @@ enum TokenKind {
   ComputedIdentifierEnd,
   Bind,
   Print,
+  Emit,
   Comma,
   LBracket,
   RBracket,
@@ -71,6 +72,7 @@ enum TokenKind {
 const lexer = buildLexer([
   [true, /^".*?"/g, TokenKind.String],
   [true, /^PRINT/g, TokenKind.Print],
+  [true, /^EMIT/g, TokenKind.Emit],
   [true, /^FUNC/g, TokenKind.Func],
   [true, /^IF/g, TokenKind.If],
   [true, /^THEN/g, TokenKind.Then],
@@ -300,6 +302,12 @@ STMT.setPattern(
       seq(tok(TokenKind.Print), CONDITIONAL_EXP),
       ([t1, value]: [Token<TokenKind.Print>, Expression]): Statement => {
         return { type: "print", value };
+      }
+    ),
+    apply(
+      seq(tok(TokenKind.Emit), CONDITIONAL_EXP),
+      ([t1, value]: [Token<TokenKind.Emit>, Expression]): Statement => {
+        return { type: "emit", value };
       }
     ),
     apply(
