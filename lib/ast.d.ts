@@ -93,11 +93,11 @@ type ExpressionVar = z.infer<typeof schemaExpressionVarBase> & {
     identifier: Identifier;
 };
 declare const schemaExpressionConditionalBase: z.ZodObject<{
-    type: z.ZodLiteral<"conditon">;
+    type: z.ZodLiteral<"condition">;
 }, "strip", z.ZodTypeAny, {
-    type: "conditon";
+    type: "condition";
 }, {
-    type: "conditon";
+    type: "condition";
 }>;
 type ExpressionCondition = z.infer<typeof schemaExpressionConditionalBase> & {
     condition: Expression;
@@ -301,7 +301,7 @@ declare const schemaStatementIfBase: z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -347,7 +347,7 @@ declare const schemaStatementIfBase: z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -458,7 +458,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -512,7 +512,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -616,7 +616,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -662,7 +662,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -758,7 +758,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -804,7 +804,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -1074,7 +1074,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -1118,7 +1118,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -1172,7 +1172,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -1216,7 +1216,7 @@ export declare const schemaStatement: z.ZodUnion<[z.ZodObject<{
     } & {
         identifier: Identifier;
     }) | ({
-        type: "conditon";
+        type: "condition";
     } & {
         condition: Expression;
         onTrue: Expression;
@@ -1355,7 +1355,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1409,7 +1409,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1513,7 +1513,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1559,7 +1559,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1655,7 +1655,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1701,7 +1701,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -1971,7 +1971,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2015,7 +2015,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2069,7 +2069,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2113,7 +2113,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2178,7 +2178,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2232,7 +2232,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2278,7 +2278,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2356,7 +2356,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2400,7 +2400,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2459,7 +2459,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2513,7 +2513,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2559,7 +2559,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2637,7 +2637,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;
@@ -2681,7 +2681,7 @@ export declare const schemaEnvironment: z.ZodObject<{
         } & {
             identifier: Identifier;
         }) | ({
-            type: "conditon";
+            type: "condition";
         } & {
             condition: Expression;
             onTrue: Expression;

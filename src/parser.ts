@@ -255,7 +255,7 @@ CONDITIONAL_EXP.setPattern(
         Token<TokenKind.ConditionalEnd>,
         Expression
       ]): Expression => ({
-        type: "conditon",
+        type: "condition",
         condition: first,
         onTrue,
         onFalse,
@@ -276,7 +276,7 @@ CONDITIONAL_EXP.setPattern(
         Token<TokenKind.ConditionalEnd>,
         Expression
       ]): Expression => ({
-        type: "conditon",
+        type: "condition",
         condition: first,
         onTrue,
         onFalse,

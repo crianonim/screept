@@ -113,7 +113,7 @@ const schemaExpressionVar: z.ZodType<ExpressionVar> =
   });
 
 const schemaExpressionConditionalBase = z.object({
-  type: z.literal("conditon"),
+  type: z.literal("condition"),
 });
 type ExpressionCondition = z.infer<typeof schemaExpressionConditionalBase> & {
   condition: Expression;
@@ -372,7 +372,7 @@ export function evaluateExpressionSafely(
           .exhaustive()
     )
     .with(
-      { type: "conditon" },
+      { type: "condition" },
       ({ condition, onTrue, onFalse }): E.Either<EvaluationError, Value> =>
         pipe(
           evaluateExpressionSafely(environment, condition),
@@ -691,7 +691,7 @@ export function stringifyExpression(e: Expression): string {
     .with({ type: "unary_op" }, ({ op, x }) => `${op}${stringifyExpression(x)}`)
 
     .with(
-      { type: "conditon" },
+      { type: "condition" },
       ({ condition, onFalse, onTrue }) =>
         `${stringifyExpression(condition)} ? ${stringifyExpression(
           onTrue
